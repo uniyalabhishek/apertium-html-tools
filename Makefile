@@ -82,6 +82,9 @@ build/js/listrequests.js: $(CONFIG) tools/read-conf.py build/js/.d
 	printf "config.TAGGERS = " >> $@
 	curl -Ss "$(shell ./tools/read-conf.py -c $< get APY_URL)/list?q=taggers" >> $@ || ( rm $@; false; )
 	echo ";" >> $@
+	printf "config.PAIRPREFS = " >> $@
+	curl -Ss "$(shell ./tools/read-conf.py -c $< get APY_URL)/pairprefs" >> $@ || ( rm $@; false; )
+	echo ";" >> $@
 
 build/js/all.js: $(JSFILES) build/js/.d
 	@awk '/\xEF\xBB\xBF/{print "\nERROR: Byte Order Mark found in "FILENAME"\n"; exit(1)}' $(JSFILES)

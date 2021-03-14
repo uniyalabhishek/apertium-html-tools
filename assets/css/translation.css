@@ -202,3 +202,11 @@ html[dir='rtl'] #translateWebpage {
     height: 700px;
     width: 100%;
 }
+
+#preferenceList {
+    display: none;
+}
+
+#showPreferences:hover #preferenceList {
+    display: block;
+}

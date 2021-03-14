@@ -27,6 +27,7 @@ var PUNCTUATION_KEY_CODES = [46, 33, 58, 63, 47, 45, 190, 171, 49]; // eslint-di
 
 /* global config, modeEnabled, synchronizeTextareaHeights, persistChoices, getLangByCode, sendEvent, onlyUnique, restoreChoices
     getDynamicLocalization, locale, ajaxSend, ajaxComplete, localizeInterface, filterLangList, cache, readCache, iso639Codes,
+    restoreSelectedPrefs, getFormSelectedPrefs,
     callApy, apyRequestTimeout, isURL, removeSoftHyphens, parentLang, isVariant, langDirection, languages, iso639CodesInverse */
 /* global ENTER_KEY_CODE, HTTP_BAD_REQUEST_CODE, HTTP_OK_CODE, SPACE_KEY_CODE, XHR_DONE, XHR_LOADING */
 
@@ -40,6 +41,13 @@ if(modeEnabled('translation')) {
             synchronizeTextareaHeights();
 
             $('#markUnknown').change(function () {
+                if($('div#translateText').is(':visible')) {
+                    translateText();
+                }
+                persistChoices('translator');
+            });
+
+            $('#preferenceList input').change(function () {
                 if($('div#translateText').is(':visible')) {
                     translateText();
                 }
@@ -219,6 +227,7 @@ if(modeEnabled('translation')) {
 
                 refreshLangList(true);
                 muteLanguages();
+                refreshPreferences();
 
                 if($('.active > #detectedText')) {
                     $('.srcLang').removeClass('active');
@@ -489,6 +498,7 @@ function handleNewCurrentLang(lang /*: string */, recentLangs /*: string[] */, l
 
     populateTranslationList();
     muteLanguages();
+    refreshPreferences();
     localizeInterface();
     if(!noTranslate) {
         translate();
@@ -757,6 +767,32 @@ function populateTranslationList() {
     }
 }
 
+function refreshPreferences() {
+    var pair = curSrcLang + '-' + curDstLang;
+    if(pair in config.PAIRPREFS && Object.keys(config.PAIRPREFS[pair]).length > 0) {
+        var prefs = config.PAIRPREFS[pair];
+        var npid = 0;
+        $('#preferenceList').empty();
+        for(var pref in prefs) {
+            var prid = 'preference_' + (npid++);
+            var label = prefs[pref];
+            $('#preferenceList').append($('<input type="checkbox"/>')
+                .attr('value', pref)
+                .attr('id', prid)
+                .data('pair', pair));
+            $('#preferenceList').append($('<label>')
+                .attr('for', prid)
+                .text(label));
+            $('#preferenceList').append($('<br/>'));
+        }
+        restoreSelectedPrefs();
+        $('#showPreferences').show();
+    }
+    else {
+        $('#showPreferences').hide();
+    }
+}
+
 function translate(ignoreIfEmpty) {
     if(translationTimer) {
         clearTimeout(translationTimer);
@@ -802,7 +838,8 @@ function translateText(ignoreIfEmpty) {
             var endpoint/*: string */;
             var request /*: { langpairs?: string, langpair?: string, q: string, markUnknown: string } */ = {
                 q: originalText, // eslint-disable-line id-length
-                markUnknown: $('#markUnknown').prop('checked') ? 'yes' : 'no'
+                markUnknown: $('#markUnknown').prop('checked') ? 'yes' : 'no',
+                prefs: getFormSelectedPrefs()
             };
 
             if($('input#chainedTranslation').prop('checked') && config.TRANSLATION_CHAINING) {
@@ -1344,7 +1381,7 @@ function setDefaultSrcLang() {
 /*:: import {synchronizeTextareaHeights, modeEnabled, ajaxSend, ajaxComplete, filterLangList, onlyUnique, sendEvent, callApy,
     apyRequestTimeout, removeSoftHyphens, parentLang, isVariant} from "./util.js" */
 /*:: import {ENTER_KEY_CODE, HTTP_BAD_REQUEST_CODE, HTTP_OK_CODE, SPACE_KEY_CODE, XHR_DONE, XHR_LOADING} from "./util.js" */
-/*:: import {persistChoices, restoreChoices} from "./persistence.js" */
+/*:: import {restoreSelectedPrefs, getFormSelectedPrefs, persistChoices, restoreChoices} from "./persistence.js" */
 /*:: import {localizeInterface, getLangByCode, getDynamicLocalization, locale, iso639Codes, langDirection, languages,
     iso639CodesInverse} from "./localization.js" */
 /*:: import {readCache, cache} from "./persistence.js" */
