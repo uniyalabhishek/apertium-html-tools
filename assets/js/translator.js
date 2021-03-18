@@ -47,12 +47,7 @@ if(modeEnabled('translation')) {
                 persistChoices('translator');
             });
 
-            $('#preferenceList input').change(function () {
-                if($('div#translateText').is(':visible')) {
-                    translateText();
-                }
-                persistChoices('translator');
-            });
+            refreshPreferences();
 
             $('.clearButton').click(function () {
                 $('#originalText, #translatedText').val('');
@@ -786,7 +781,14 @@ function refreshPreferences() {
             $('#preferenceList').append($('<br/>'));
         }
         restoreSelectedPrefs();
+        translateText();
         $('#showPreferences').show();
+        $('#preferenceList input').change(function () {
+            if($('div#translateText').is(':visible')) {
+                translateText();
+            }
+            persistChoices('translator');
+        });
     }
     else {
         $('#showPreferences').hide();

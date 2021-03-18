@@ -118,7 +118,6 @@ $(document).ready(function () {
                 (urlParams.length > 0 ? '?' + urlParams.join('&') : '') +
                 window.location.hash;
             window.history.replaceState({}, document.title, newURL);
-            refreshPreferences();
         }
     }
 });
